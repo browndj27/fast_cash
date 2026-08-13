@@ -1,0 +1,99 @@
+.player-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 220px;
+  font-family: "Courier New", Courier, monospace;
+  color: #fff;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.player-panel-label {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.player-panel-budget {
+  font-size: 20px;
+  font-weight: bold;
+  background: #fff;
+  color: #000;
+  padding: 4px 14px;
+  border: 3px solid #000;
+}
+
+.draft-boxes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.draft-box {
+  background: rgba(255, 255, 255, 0.92);
+  color: #000;
+  border: 3px solid #000;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.draft-box.empty {
+  background: rgba(255, 255, 255, 0.35);
+  color: transparent;
+}
+
+.concede-button {
+  width: 100%;
+  background: #fff;
+  color: #000;
+  border: 3px solid #000;
+  padding: 8px 6px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: "Courier New", Courier, monospace;
+  cursor: pointer;
+}
+
+.concede-button:hover:not(:disabled) {
+  background: #d10000;
+  color: #fff;
+}
+
+.concede-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.bid-button {
+  background: #fff;
+  color: #000;
+  border: 3px solid #000;
+  padding: 6px 14px;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: "Courier New", Courier, monospace;
+  cursor: pointer;
+}
+
+.bid-button:hover:not(:disabled) {
+  background: #d10000;
+  color: #fff;
+}
+
+.bid-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.bid-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

@@ -1,0 +1,19 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: "Courier New", Courier, monospace;
+  background: #000;
+  color: #fff;
+  -webkit-font-smoothing: none;
+}
+
+button {
+  font-family: inherit;
+}
