@@ -2,7 +2,7 @@ import { useState } from "react";
 import { drawPlayers } from "../data/playerPools";
 
 const STARTING_BUDGET = 20;
-const ROSTER_SIZE = 5;
+export const ROSTER_SIZE = 5;
 const TOTAL_ROUNDS = ROSTER_SIZE * 2;
 
 function makeInitialState(position) {
@@ -41,6 +41,14 @@ function legalRange(budget, currentBid) {
   return { min: currentBid + 1, max: budget };
 }
 
+function isRoundOver(state) {
+  return (
+    state.roundIndex >= state.players.length ||
+    state.rosters[0].length === ROSTER_SIZE ||
+    state.rosters[1].length === ROSTER_SIZE
+  );
+}
+
 export default function useFastCashGame(position) {
   const [state, setState] = useState(() => makeInitialState(position));
 
@@ -63,8 +71,7 @@ export default function useFastCashGame(position) {
 
   function placeBid(idx, amount) {
     setState((prev) => {
-      if (prev.roundIndex >= prev.players.length) return prev;
-      if (prev.rosters[0].length === ROSTER_SIZE || prev.rosters[1].length === ROSTER_SIZE) return prev;
+      if (isRoundOver(prev)) return prev;
       if (prev.activeTurn !== idx) return prev;
       const { min, max } = legalRange(prev.budgets[idx], prev.currentBid);
       if (amount < min || amount > max) return prev;
@@ -79,8 +86,7 @@ export default function useFastCashGame(position) {
 
   function concede(idx) {
     setState((prev) => {
-      if (prev.roundIndex >= prev.players.length) return prev;
-      if (prev.rosters[0].length === ROSTER_SIZE || prev.rosters[1].length === ROSTER_SIZE) return prev;
+      if (isRoundOver(prev)) return prev;
       if (prev.activeTurn !== idx || prev.currentBidder === null) return prev;
       return resolveRoundAward(prev, prev.currentBidder, prev.currentBid);
     });

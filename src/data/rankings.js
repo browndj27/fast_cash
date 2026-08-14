@@ -1,0 +1,78 @@
+const SLEEPER_PLAYERS_URL = "https://api.sleeper.app/v1/players/nfl";
+const CACHE_KEY = "fastcash_rank_index_v1";
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const RANKED_POSITIONS = ["QB", "RB", "WR"];
+
+// Names not yet seen by Sleeper (rookies pre-DB-update, typos) fall back
+// here — well past our pool's observed rank range (1-524) so they still
+// score, just low, instead of crashing the results screen.
+const FALLBACK_RANK = 600;
+const MAX_POINTS = 1000;
+
+function normalizeName(name) {
+  return name
+    .toLowerCase()
+    .replace(/[.']/g, "")
+    .replace(/\b(jr|sr|ii|iii|iv|v)\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function indexKey(position, name) {
+  return `${position}:${normalizeName(name)}`;
+}
+
+function buildRankIndex(players) {
+  const index = {};
+  for (const player of Object.values(players)) {
+    const { full_name: fullName, position, search_rank: searchRank } = player;
+    if (!fullName || !RANKED_POSITIONS.includes(position) || typeof searchRank !== "number") {
+      continue;
+    }
+    const key = indexKey(position, fullName);
+    if (!(key in index) || searchRank < index[key]) {
+      index[key] = searchRank;
+    }
+  }
+  return index;
+}
+
+function readCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const { savedAt, index } = JSON.parse(raw);
+    if (Date.now() - savedAt > CACHE_TTL_MS) return null;
+    return index;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(index) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ savedAt: Date.now(), index }));
+  } catch {
+    // Storage unavailable or full — next load just refetches.
+  }
+}
+
+export async function loadRankings() {
+  const cached = readCache();
+  if (cached) return cached;
+
+  const res = await fetch(SLEEPER_PLAYERS_URL);
+  if (!res.ok) throw new Error(`Sleeper API request failed: ${res.status}`);
+  const players = await res.json();
+  const index = buildRankIndex(players);
+  writeCache(index);
+  return index;
+}
+
+export function rankFor(index, position, name) {
+  return index[indexKey(position, name)] ?? FALLBACK_RANK;
+}
+
+export function pointsFor(index, position, name) {
+  return Math.max(0, MAX_POINTS - rankFor(index, position, name));
+}

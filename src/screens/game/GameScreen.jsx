@@ -12,7 +12,7 @@ function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export default function GameScreen({ position, vsAI, onGameOver }) {
+export default function GameScreen({ position, vsAI, onGameOver, onResetGame, onFullRestart }) {
   const game = useFastCashGame(position);
   const {
     budgets,
@@ -120,6 +120,15 @@ export default function GameScreen({ position, vsAI, onGameOver }) {
           onBid={() => placeBid(1, bidValue1)}
           onConcede={() => concede(1)}
         />
+      </div>
+
+      <div className="game-controls">
+        <button type="button" className="reset-game-button" onClick={onResetGame}>
+          Reset Game
+        </button>
+        <button type="button" className="full-restart-button" onClick={onFullRestart}>
+          Full Restart
+        </button>
       </div>
     </div>
   );

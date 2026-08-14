@@ -28,7 +28,7 @@ export const PLAYER_POOLS = {
     "Keenan Allen", "CeeDee Lamb", "George Pickens", "Malik Nabers", "Wan'Dale Robinson",
     "DeVonta Smith", "Terry McLaurin", "Rome Odunze", "Luther Burden III", "Amon-Ra St. Brown",
     "Jameson Williams", "Christian Watson", "Justin Jefferson", "Jordan Addison", "Drake London",
-    "Jordan Tyson", "Tetairoa McMillan", "Xavier Legette", "Chris Olave", "Chris Godwin",
+    "Jordyn Tyson", "Tetairoa McMillan", "Xavier Legette", "Chris Olave", "Chris Godwin",
     "Marvin Harrison Jr.", "Puka Nacua", "Davante Adams", "Deebo Samuel Sr.", "Mike Evans",
     "Jaxon Smith-Njigba", "Cooper Kupp",
   ],

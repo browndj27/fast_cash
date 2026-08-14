@@ -19,6 +19,10 @@ export default function App() {
     setFinalRosters(null);
   }
 
+  function resetGame() {
+    setGameKey((k) => k + 1);
+  }
+
   if (screen === "home") {
     return <HomeScreen onStart={() => setScreen("mode")} />;
   }
@@ -56,12 +60,21 @@ export default function App() {
           setFinalRosters(rosters);
           setScreen("results");
         }}
+        onResetGame={resetGame}
+        onFullRestart={resetToHome}
       />
     );
   }
 
   if (screen === "results") {
-    return <ResultsScreen rosters={finalRosters} vsAI={vsAI} onBackToHome={resetToHome} />;
+    return (
+      <ResultsScreen
+        rosters={finalRosters}
+        position={position}
+        vsAI={vsAI}
+        onBackToHome={resetToHome}
+      />
+    );
   }
 
   return null;

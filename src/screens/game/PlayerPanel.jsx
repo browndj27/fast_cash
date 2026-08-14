@@ -1,7 +1,6 @@
 import BidSelector from "./BidSelector";
+import { ROSTER_SIZE } from "../../hooks/useFastCashGame";
 import "./PlayerPanel.css";
-
-const ROSTER_SIZE = 5;
 
 export default function PlayerPanel({
   label,
