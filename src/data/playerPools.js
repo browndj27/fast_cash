@@ -1,36 +1,38 @@
+// Each position pool is capped at its top 30 players by real-world
+// fantasy prominence (Sleeper's search_rank) to keep each bidding pool
+// small — see the ranking pass in fetch-player-images.mjs/rankings.js.
 export const PLAYER_POOLS = {
   QB: [
-    "Josh Allen", "Malik Willis", "Shedeur Sanders", "Aaron Rodgers", "C.J. Stroud",
-    "Drake Maye", "Geno Smith", "Lamar Jackson", "Joe Burrow", "Deshaun Watson",
-    "Daniel Jones", "Trevor Lawrence", "Cam Ward", "Bo Nix", "Patrick Mahomes",
-    "Fernando Mendoza", "Kirk Cousins", "Justin Herbert", "Dak Prescott", "Jaxson Dart",
-    "Jalen Hurts", "Jayden Daniels", "Caleb Williams", "Jared Goff", "Jordan Love",
-    "Kyler Murray", "J.J. McCarthy", "Tua Tagovailoa", "Bryce Young", "Tyler Shough",
-    "Baker Mayfield", "Michael Penix Jr.", "Jacoby Brissett", "Matthew Stafford",
-    "Brock Purdy", "Sam Darnold",
+    "Josh Allen", "Drake Maye", "Lamar Jackson", "Joe Burrow", "Jayden Daniels",
+    "Caleb Williams", "Justin Herbert", "Jalen Hurts", "Jaxson Dart", "Patrick Mahomes",
+    "Trevor Lawrence", "Bo Nix", "Dak Prescott", "Brock Purdy", "Jordan Love",
+    "Jared Goff", "Baker Mayfield", "Matthew Stafford", "Fernando Mendoza", "Tyler Shough",
+    "Cam Ward", "C.J. Stroud", "Sam Darnold", "Kyler Murray", "Malik Willis",
+    "Bryce Young", "Daniel Jones", "Jacoby Brissett", "Geno Smith", "Tua Tagovailoa",
   ],
   RB: [
-    "James Cook", "De'Von Achane", "Breece Hall", "TreVeyon Henderson", "Derrick Henry",
-    "Chase Brown", "Dylan Sampson", "Quinshon Judkins", "Jaylen Warren", "David Montgomery",
-    "Jonathan Taylor", "Travis Etienne Jr.", "Tony Pollard", "RJ Harvey", "Kenneth Walker",
-    "Isiah Pacheco", "Ashton Jeanty", "Omarion Hampton", "Javonte Williams", "Cam Skattebo",
-    "Saquon Barkley", "Jacory Croskey-Merritt", "D'Andre Swift", "Jahmyr Gibbs", "Josh Jacobs",
-    "Aaron Jones", "Bijan Robinson", "Trevor Etienne", "Alvin Kamara", "Rachaad White",
-    "Bucky Irving", "James Conner", "Jeremiyah Love", "Kyren Williams", "Christian McCaffrey",
-    "Zach Charbonnet",
+    "Jahmyr Gibbs", "Bijan Robinson", "Jonathan Taylor", "James Cook", "Christian McCaffrey",
+    "Derrick Henry", "De'Von Achane", "Ashton Jeanty", "Omarion Hampton", "Saquon Barkley",
+    "Kyren Williams", "Jeremiyah Love", "Chase Brown", "Kenneth Walker", "Josh Jacobs",
+    "Breece Hall", "Javonte Williams", "Bucky Irving", "Travis Etienne Jr.", "Cam Skattebo",
+    "TreVeyon Henderson", "Quinshon Judkins", "D'Andre Swift", "David Montgomery", "Jaylen Warren",
+    "RJ Harvey", "Tony Pollard", "Aaron Jones", "James Conner", "Jacory Croskey-Merritt",
   ],
   WR: [
-    "Khalil Shakir", "Keon Coleman", "Tyreek Hill", "Jaylen Waddle", "Garrett Wilson",
-    "Stefon Diggs", "Romeo Doubs", "A.J. Brown", "Zay Flowers", "Rashod Bateman",
-    "Jerry Jeudy", "DK Metcalf", "Michael Pittman Jr.", "Nico Collins", "Alec Pierce",
-    "Brian Thomas Jr.", "Travis Hunter", "Calvin Ridley", "Carnell Tate", "Courtland Sutton",
-    "Rashee Rice", "Xavier Worthy", "Jakobi Meyers", "Tre Tucker", "Ladd McConkey",
-    "Keenan Allen", "CeeDee Lamb", "George Pickens", "Malik Nabers", "Wan'Dale Robinson",
-    "DeVonta Smith", "Terry McLaurin", "Rome Odunze", "Luther Burden III", "Amon-Ra St. Brown",
-    "Jameson Williams", "Christian Watson", "Justin Jefferson", "Jordan Addison", "Drake London",
-    "Jordyn Tyson", "Tetairoa McMillan", "Xavier Legette", "Chris Olave", "Chris Godwin",
-    "Marvin Harrison Jr.", "Puka Nacua", "Davante Adams", "Deebo Samuel Sr.", "Mike Evans",
-    "Jaxon Smith-Njigba", "Cooper Kupp",
+    "Puka Nacua", "Jaxon Smith-Njigba", "Amon-Ra St. Brown", "CeeDee Lamb", "Justin Jefferson",
+    "Drake London", "A.J. Brown", "Nico Collins", "George Pickens", "Rashee Rice",
+    "Malik Nabers", "Chris Olave", "DeVonta Smith", "Tetairoa McMillan", "Garrett Wilson",
+    "Ladd McConkey", "Luther Burden III", "Jaylen Waddle", "Zay Flowers", "Davante Adams",
+    "Terry McLaurin", "Jameson Williams", "Mike Evans", "Carnell Tate", "Rome Odunze",
+    "Jordyn Tyson", "Christian Watson", "Brian Thomas Jr.", "Courtland Sutton", "DK Metcalf",
+  ],
+  TE: [
+    "Trey McBride", "Brock Bowers", "Colston Loveland", "Tyler Warren", "Sam LaPorta",
+    "Tucker Kraft", "Kyle Pitts", "Dalton Kincaid", "George Kittle", "Hunter Henry",
+    "Dallas Goedert", "Mark Andrews", "Travis Kelce", "Jake Ferguson", "Dalton Schultz",
+    "Juwan Johnson", "Brenton Strange", "Isaiah Likely", "David Njoku", "Colby Parkinson",
+    "Chig Okonkwo", "T.J. Hockenson", "Mason Taylor", "Theo Johnson", "Cade Otton",
+    "Jonnu Smith", "Eric Ebron", "Gunnar Helm", "AJ Barner", "Terrance Ferguson",
   ],
 };
 
@@ -38,7 +40,11 @@ export const POSITION_LABELS = {
   QB: "QBs",
   RB: "RBs",
   WR: "WRs",
+  TE: "TEs",
 };
+
+// Any offensive position except QB — used by the FLEX slot in Skills Cash.
+export const FLEX_POSITIONS = ["RB", "WR", "TE"];
 
 function shuffle(array) {
   const result = [...array];
@@ -51,4 +57,17 @@ function shuffle(array) {
 
 export function drawPlayers(position, count) {
   return shuffle(PLAYER_POOLS[position]).slice(0, count);
+}
+
+// Picks one random player from the union of the given positions, excluding
+// any name already spoken for (e.g. players already drafted this game).
+// A single position (e.g. ["RB"]) draws from just that pool; FLEX_POSITIONS
+// draws from the shared RB/WR/TE pool used by Skills Cash's FLEX slot.
+export function pickRandomPlayer(positions, exclude = []) {
+  const excluded = new Set(exclude);
+  const pool = positions.flatMap((pos) =>
+    PLAYER_POOLS[pos].filter((name) => !excluded.has(name)).map((name) => ({ name, position: pos }))
+  );
+  if (pool.length === 0) return null;
+  return pool[Math.floor(Math.random() * pool.length)];
 }

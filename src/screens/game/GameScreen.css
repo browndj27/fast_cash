@@ -54,9 +54,41 @@
   text-align: center;
 }
 
+.center-stage-photo {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  box-shadow: 0 0 0 3px #000;
+}
+
 .uncontested-note {
   font-family: "Courier New", Courier, monospace;
   color: #fff;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.turn-info {
+  font-family: "Courier New", Courier, monospace;
+  color: #fff;
+  text-shadow: 1px 1px 0 #000;
+  text-align: center;
+}
+
+.turn-info-turn {
+  font-size: 14px;
+}
+
+.turn-info-bid {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.turn-arrow {
+  display: inline-block;
+  margin: 0 6px;
+  color: #ffca28;
   text-shadow: 1px 1px 0 #000;
 }
 

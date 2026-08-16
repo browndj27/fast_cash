@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { drawPlayers } from "../data/playerPools";
+import { legalRange } from "./bidding";
 
 const STARTING_BUDGET = 20;
 export const ROSTER_SIZE = 5;
@@ -32,13 +33,6 @@ function resolveRoundAward(prev, winnerIdx, price) {
     currentBidder: null,
     activeTurn: roundIndex % 2,
   };
-}
-
-function legalRange(budget, currentBid) {
-  if (budget === 0) {
-    return currentBid === 0 ? { min: 0, max: 0 } : { min: 1, max: 0 };
-  }
-  return { min: currentBid + 1, max: budget };
 }
 
 function isRoundOver(state) {

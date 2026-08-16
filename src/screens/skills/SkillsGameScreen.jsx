@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import useFastCashGame from "../../hooks/useFastCashGame";
-import PlayerPanel from "./PlayerPanel";
+import useSkillsCashGame from "../../hooks/useSkillsCashGame";
+import SkillsPlayerPanel from "./SkillsPlayerPanel";
 import PlayerPhoto from "../../components/PlayerPhoto";
 import TurnLabel from "../../components/TurnLabel";
 import { imageFor } from "../../data/playerImages";
-import "./GameScreen.css";
+import "../game/GameScreen.css";
 
 const AI_SIDE = 1;
 const AI_THINK_MS = 900;
@@ -15,14 +15,15 @@ function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export default function GameScreen({ position, vsAI, onGameOver, onResetGame, onFullRestart }) {
-  const game = useFastCashGame(position);
+export default function SkillsGameScreen({ vsAI, onGameOver, onResetGame, onFullRestart }) {
+  const game = useSkillsCashGame();
   const {
     budgets,
     rosters,
-    roundIndex,
-    totalRounds,
-    currentPlayerName,
+    picksMade,
+    totalPicksNeeded,
+    currentPick,
+    currentCategory,
     currentBid,
     currentBidder,
     activeTurn,
@@ -43,21 +44,22 @@ export default function GameScreen({ position, vsAI, onGameOver, onResetGame, on
   const [bidValue0, setBidValue0] = useState(range0.min);
   const [bidValue1, setBidValue1] = useState(range1.min);
 
-  // Reset each side's selector whenever a new bidding turn begins.
+  // Reset each side's selector whenever a new bidding pick begins.
   useEffect(() => {
     const r0 = bidRangeFor(0);
     const r1 = bidRangeFor(1);
     setBidValue0(r0.canBid ? r0.min : 0);
     setBidValue1(r1.canBid ? r1.min : 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roundIndex, activeTurn, currentBid, budgets[0], budgets[1]]);
+  }, [picksMade, activeTurn, currentBid, budgets[0], budgets[1]]);
 
-  // Auto-award uncontested rounds once one side's roster is full.
+  // Auto-award uncontested picks once one side's slot for the current
+  // position group is already filled.
   useEffect(() => {
     if (!isUncontested) return;
     const timer = setTimeout(() => awardUncontested(), UNCONTESTED_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [isUncontested, roundIndex, awardUncontested]);
+  }, [isUncontested, picksMade, awardUncontested]);
 
   // AI auto-play: purely mechanical, random bid capped per turn, no
   // player evaluation of any kind.
@@ -93,13 +95,12 @@ export default function GameScreen({ position, vsAI, onGameOver, onResetGame, on
   return (
     <div className="game-screen">
       <div className="round-indicator">
-        Round {roundIndex + 1} of {totalRounds}
+        Pick {picksMade + 1} of {totalPicksNeeded}
       </div>
 
       <div className="game-layout">
-        <PlayerPanel
+        <SkillsPlayerPanel
           label={player1Label}
-          position={position}
           budget={budgets[0]}
           roster={rosters[0]}
           bidValue={bidValue0}
@@ -110,12 +111,13 @@ export default function GameScreen({ position, vsAI, onGameOver, onResetGame, on
         />
 
         <div className="center-stage">
-          {currentPlayerName && (
+          {currentPick && (
             <>
-              <div className="center-stage-name">{currentPlayerName}</div>
+              <div className="uncontested-note">Drafting: {currentCategory}</div>
+              <div className="center-stage-name">{currentPick.name}</div>
               <PlayerPhoto
-                src={imageFor(position, currentPlayerName)}
-                alt={currentPlayerName}
+                src={imageFor(currentPick.position, currentPick.name)}
+                alt={currentPick.name}
                 className="center-stage-photo"
               />
               {!isUncontested && (
@@ -131,9 +133,8 @@ export default function GameScreen({ position, vsAI, onGameOver, onResetGame, on
           {isUncontested && <div className="uncontested-note">Uncontested — awarding player...</div>}
         </div>
 
-        <PlayerPanel
+        <SkillsPlayerPanel
           label={player2Label}
-          position={position}
           budget={budgets[1]}
           roster={rosters[1]}
           bidValue={bidValue1}

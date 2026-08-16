@@ -1,12 +1,11 @@
-import BidSelector from "./BidSelector";
+import BidSelector from "../game/BidSelector";
 import PlayerPhoto from "../../components/PlayerPhoto";
-import { ROSTER_SIZE } from "../../hooks/useFastCashGame";
+import { ROSTER_SLOTS } from "../../hooks/rosterSlots";
 import { imageFor } from "../../data/playerImages";
-import "./PlayerPanel.css";
+import "../game/PlayerPanel.css";
 
-export default function PlayerPanel({
+export default function SkillsPlayerPanel({
   label,
-  position,
   budget,
   roster,
   bidValue,
@@ -15,20 +14,28 @@ export default function PlayerPanel({
   onBid,
   onConcede,
 }) {
-  const slots = Array.from({ length: ROSTER_SIZE }, (_, i) => roster[i] || null);
-
   return (
     <div className="player-panel">
       <div className="player-panel-label">{label}</div>
       <div className="player-panel-budget">${budget}</div>
 
       <div className="draft-boxes">
-        {slots.map((name, i) => (
-          <div key={i} className={`draft-box${name ? "" : " empty"}`}>
-            <span className="draft-box-name">{name || "-"}</span>
-            {name && <PlayerPhoto src={imageFor(position, name)} alt={name} className="draft-box-photo" />}
-          </div>
-        ))}
+        {ROSTER_SLOTS.map((slot) => {
+          const entry = roster.find((e) => e.slot === slot);
+          return (
+            <div key={slot} className={`draft-box${entry ? "" : " empty"}`}>
+              <span className="draft-box-slot">{slot}</span>
+              <span className="draft-box-name">{entry ? entry.name : "-"}</span>
+              {entry && (
+                <PlayerPhoto
+                  src={imageFor(entry.position, entry.name)}
+                  alt={entry.name}
+                  className="draft-box-photo"
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <button

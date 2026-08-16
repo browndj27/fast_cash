@@ -1,26 +1,15 @@
+import { indexKey } from "./nameMatch";
+
 const SLEEPER_PLAYERS_URL = "https://api.sleeper.app/v1/players/nfl";
-const CACHE_KEY = "fastcash_rank_index_v1";
+const CACHE_KEY = "fastcash_rank_index_v2";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
-const RANKED_POSITIONS = ["QB", "RB", "WR"];
+const RANKED_POSITIONS = ["QB", "RB", "WR", "TE"];
 
 // Names not yet seen by Sleeper (rookies pre-DB-update, typos) fall back
 // here — well past our pool's observed rank range (1-524) so they still
 // score, just low, instead of crashing the results screen.
 const FALLBACK_RANK = 600;
 const MAX_POINTS = 1000;
-
-function normalizeName(name) {
-  return name
-    .toLowerCase()
-    .replace(/[.']/g, "")
-    .replace(/\b(jr|sr|ii|iii|iv|v)\b/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function indexKey(position, name) {
-  return `${position}:${normalizeName(name)}`;
-}
 
 function buildRankIndex(players) {
   const index = {};
