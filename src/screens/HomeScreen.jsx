@@ -6,7 +6,7 @@ export default function HomeScreen({ onStart, onStartSkills, onStartWheel }) {
     <div className="menu-screen">
       <MenuBox label="NFL Fast Cash" onClick={onStart} />
       <MenuBox label="NFL Skills Cash" onClick={onStartSkills} />
-      <MenuBox label="Spin the NFL Wheel" onClick={onStartWheel} />
+      <MenuBox label="NFL Spin the Wheel" onClick={onStartWheel} />
     </div>
   );
 }
