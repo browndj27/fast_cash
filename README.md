@@ -2,6 +2,8 @@
 
 Rylan's Fast Cash game — a React + Vite draft/bidding game where you pick a position and compete for the best roster, solo or against an AI opponent.
 
+**Play it live:** [browndj27.github.io/fast_cash](https://browndj27.github.io/fast_cash/)
+
 ## Getting started
 
 Install dependencies:
