@@ -30,8 +30,8 @@
 }
 
 .menu-box.disabled:hover {
-  background-color: #d10000;
-  color: #fff;
+  background-color: #fff;
+  color: #000;
 }
 
 /* Home-screen mode tiles — fixed equal size, icon + eyebrow + title */
@@ -87,6 +87,10 @@
 
 .menu-box--accent-purple {
   border-top-color: #c13bff;
+}
+
+.menu-box--accent-gray {
+  border-top-color: #888;
 }
 
 /* Fast Cash — urgent flicker, like a scoreboard clock running out */

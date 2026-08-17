@@ -30,6 +30,13 @@ const WheelIcon = (
   </svg>
 );
 
+const ClockIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3.5 2" />
+  </svg>
+);
+
 export default function HomeScreen({ onStart, onStartSkills, onStartWheel }) {
   return (
     <div className="menu-screen">
@@ -54,6 +61,13 @@ export default function HomeScreen({ onStart, onStartSkills, onStartWheel }) {
         title="SPIN THE WHEEL"
         icon={WheelIcon}
         onClick={onStartWheel}
+      />
+      <MenuBox
+        variant="accent-gray"
+        eyebrow="NFL"
+        title="COMING SOON..."
+        icon={ClockIcon}
+        disabled
       />
     </div>
   );
