@@ -6,6 +6,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import sharp from "sharp";
 import { PLAYER_POOLS } from "../src/data/playerPools.js";
 import { indexKey, normalizeName } from "../src/data/nameMatch.js";
 
@@ -42,7 +43,8 @@ async function buildIdIndex() {
 async function downloadImage(playerId, destPath) {
   const res = await fetch(SLEEPER_IMAGE_URL(playerId));
   if (!res.ok) return false;
-  await writeFile(destPath, Buffer.from(await res.arrayBuffer()));
+  const buffer = Buffer.from(await res.arrayBuffer());
+  await sharp(buffer).webp({ quality: 82 }).toFile(destPath);
   return true;
 }
 
@@ -62,7 +64,7 @@ async function main() {
         continue;
       }
 
-      const filename = `${slugify(position, name)}.jpg`;
+      const filename = `${slugify(position, name)}.webp`;
       process.stdout.write(`Downloading ${name} (${position})... `);
       const ok = await downloadImage(match.playerId, path.join(OUTPUT_DIR, filename));
       if (ok) {

@@ -12,10 +12,6 @@ dist
 dist-ssr
 *.local
 
-# Pulled via `npm run fetch:images` (scripts/fetch-player-images.mjs).
-# Third-party headshots — not tracked by default; regenerate locally.
-/public/players/
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
