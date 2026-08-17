@@ -65,3 +65,12 @@ export function rankFor(index, position, name) {
 export function pointsFor(index, position, name) {
   return Math.max(0, MAX_POINTS - rankFor(index, position, name));
 }
+
+// The `count` best names in `pool` for `position`, best (lowest) rank first.
+// Without an index yet (rankings still loading/unavailable) every player
+// ranks equally, so this just returns the pool's first `count` entries.
+export function topByRank(pool, position, index, count) {
+  return [...pool]
+    .sort((a, b) => rankFor(index, position, a) - rankFor(index, position, b))
+    .slice(0, count);
+}

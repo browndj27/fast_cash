@@ -76,7 +76,7 @@ export const POSITION_LABELS = {
 // Any offensive position except QB — used by the FLEX slot in Skills Cash.
 export const FLEX_POSITIONS = ["RB", "WR", "TE"];
 
-function shuffle(array) {
+export function shuffle(array) {
   const result = [...array];
   for (let i = result.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));

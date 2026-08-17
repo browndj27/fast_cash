@@ -4,7 +4,6 @@ import PlayerPanel from "./PlayerPanel";
 import PlayerPhoto from "../../components/PlayerPhoto";
 import TurnLabel from "../../components/TurnLabel";
 import { imageFor } from "../../data/playerImages";
-import { loadRankings } from "../../data/rankings";
 import { qualityFor, aiValuation, aiDecision } from "../../hooks/aiBidder";
 import "./GameScreen.css";
 
@@ -15,6 +14,8 @@ const UNCONTESTED_DELAY_MS = 700;
 export default function GameScreen({ position, vsAI, onGameOver, onResetGame, onFullRestart }) {
   const game = useFastCashGame(position);
   const {
+    isLoading,
+    rankIndex,
     budgets,
     rosters,
     roundIndex,
@@ -31,18 +32,6 @@ export default function GameScreen({ position, vsAI, onGameOver, onResetGame, on
     awardUncontested,
   } = game;
 
-  // Rankings power the AI's sense of player value — see src/hooks/aiBidder.js.
-  // Cached after the first fetch, so this resolves near-instantly on later games.
-  const [rankIndex, setRankIndex] = useState(null);
-  useEffect(() => {
-    if (!vsAI) return;
-    let cancelled = false;
-    loadRankings().then((index) => !cancelled && setRankIndex(index));
-    return () => {
-      cancelled = true;
-    };
-  }, [vsAI]);
-
   const range0 = bidRangeFor(0);
   const rawRange1 = bidRangeFor(1);
   // When playing vs AI, the AI's own panel is never human-clickable —
@@ -52,14 +41,17 @@ export default function GameScreen({ position, vsAI, onGameOver, onResetGame, on
   const [bidValue0, setBidValue0] = useState(range0.min);
   const [bidValue1, setBidValue1] = useState(range1.min);
 
-  // Reset each side's selector whenever a new bidding turn begins.
+  // Reset each side's selector whenever a new bidding turn begins. Also
+  // keyed on isLoading: the loading placeholders (round 0, turn 0, bid $0,
+  // budget $20/$20) are identical to a fresh game's real starting values,
+  // so without it this wouldn't rerun once the real game state arrives.
   useEffect(() => {
     const r0 = bidRangeFor(0);
     const r1 = bidRangeFor(1);
     setBidValue0(r0.canBid ? r0.min : 0);
     setBidValue1(r1.canBid ? r1.min : 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roundIndex, activeTurn, currentBid, budgets[0], budgets[1]]);
+  }, [isLoading, roundIndex, activeTurn, currentBid, budgets[0], budgets[1]]);
 
   // Auto-award uncontested rounds once one side's roster is full.
   useEffect(() => {
@@ -94,6 +86,14 @@ export default function GameScreen({ position, vsAI, onGameOver, onResetGame, on
     if (isGameOver) onGameOver(rosters);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGameOver]);
+
+  if (isLoading) {
+    return (
+      <div className="game-screen">
+        <div className="uncontested-note">Loading players...</div>
+      </div>
+    );
+  }
 
   if (isGameOver) return null;
 
