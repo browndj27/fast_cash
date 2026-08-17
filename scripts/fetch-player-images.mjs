@@ -40,9 +40,23 @@ async function buildIdIndex() {
   return index;
 }
 
-async function downloadImage(playerId, destPath) {
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// The CDN rate-limits bursts of unthrottled requests — hitting it for all
+// ~250 images back-to-back silently drops a chunk of otherwise-available
+// photos. A small delay between requests plus a couple of retries on
+// failure keeps that from masquerading as "no image on CDN".
+async function downloadImage(playerId, destPath, attempt = 1) {
   const res = await fetch(SLEEPER_IMAGE_URL(playerId));
-  if (!res.ok) return false;
+  if (!res.ok) {
+    if (attempt < 3) {
+      await sleep(400 * attempt);
+      return downloadImage(playerId, destPath, attempt + 1);
+    }
+    return false;
+  }
   const buffer = Buffer.from(await res.arrayBuffer());
   await sharp(buffer).webp({ quality: 82 }).toFile(destPath);
   return true;
@@ -74,6 +88,7 @@ async function main() {
         failed.push(`${position} ${name}`);
         console.log("failed (no image on CDN)");
       }
+      await sleep(120);
     }
   }
 
