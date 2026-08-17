@@ -77,7 +77,12 @@
 }
 
 .turn-info-turn {
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .turn-info-bid {
@@ -86,10 +91,20 @@
 }
 
 .turn-arrow {
-  display: inline-block;
-  margin: 0 6px;
+  display: inline-flex;
   color: #ffca28;
-  text-shadow: 1px 1px 0 #000;
+  filter: drop-shadow(2px 2px 0 #000);
+  animation: turn-arrow-pulse 1s ease-in-out infinite;
+}
+
+.turn-arrow-icon {
+  width: 34px;
+  height: 34px;
+}
+
+@keyframes turn-arrow-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.22); opacity: 0.7; }
 }
 
 .game-controls {
