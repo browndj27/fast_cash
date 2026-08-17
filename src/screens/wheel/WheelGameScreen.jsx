@@ -5,6 +5,8 @@ import Wheel from "./Wheel";
 import PlayerPhoto from "../../components/PlayerPhoto";
 import TurnLabel from "../../components/TurnLabel";
 import { imageFor } from "../../data/playerImages";
+import { loadRankings } from "../../data/rankings";
+import { qualityFor } from "../../hooks/aiBidder";
 import "../game/GameScreen.css";
 import "./WheelGameScreen.css";
 
@@ -36,6 +38,17 @@ export default function WheelGameScreen({ vsAI, onGameOver, onResetGame, onFullR
   // spinning, even though the hook has already decided the outcome.
   const [revealed, setRevealed] = useState(false);
 
+  // Rankings power the AI's sense of player value — see src/hooks/aiBidder.js.
+  const [rankIndex, setRankIndex] = useState(null);
+  useEffect(() => {
+    if (!vsAI) return;
+    let cancelled = false;
+    loadRankings().then((index) => !cancelled && setRankIndex(index));
+    return () => {
+      cancelled = true;
+    };
+  }, [vsAI]);
+
   useEffect(() => {
     if (phase === "idle") setRevealed(false);
   }, [phase]);
@@ -56,16 +69,20 @@ export default function WheelGameScreen({ vsAI, onGameOver, onResetGame, onFullR
     return () => clearTimeout(timer);
   }, [vsAI, isGameOver, phase, spinTurn, spin]);
 
-  // AI auto-pick: purely mechanical, picks a random eligible candidate.
+  // AI auto-pick: takes the highest-ranked eligible candidate instead of a
+  // random one — see src/hooks/aiBidder.js.
   useEffect(() => {
     if (!vsAI || activePicker !== AI_SIDE || !revealed) return;
     if (eligibleCandidates.length === 0) return;
     const timer = setTimeout(() => {
-      const choice = eligibleCandidates[Math.floor(Math.random() * eligibleCandidates.length)];
+      const choice = eligibleCandidates.reduce((best, c) => {
+        const q = qualityFor(rankIndex, c.position, c.name);
+        return q > best.quality ? { candidate: c, quality: q } : best;
+      }, { candidate: eligibleCandidates[0], quality: -1 }).candidate;
       pick(AI_SIDE, choice.name);
     }, AI_PICK_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [vsAI, activePicker, revealed, eligibleCandidates, pick]);
+  }, [vsAI, activePicker, revealed, eligibleCandidates, pick, rankIndex]);
 
   useEffect(() => {
     if (isGameOver) onGameOver(rosters);

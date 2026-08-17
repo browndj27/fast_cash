@@ -1,19 +1,17 @@
 import { useEffect, useState } from "react";
 import useSkillsCashGame from "../../hooks/useSkillsCashGame";
+import { ROSTER_SLOTS } from "../../hooks/rosterSlots";
 import SkillsPlayerPanel from "./SkillsPlayerPanel";
 import PlayerPhoto from "../../components/PlayerPhoto";
 import TurnLabel from "../../components/TurnLabel";
 import { imageFor } from "../../data/playerImages";
+import { loadRankings } from "../../data/rankings";
+import { qualityFor, aiValuation, aiDecision } from "../../hooks/aiBidder";
 import "../game/GameScreen.css";
 
 const AI_SIDE = 1;
 const AI_THINK_MS = 900;
-const AI_CONCEDE_CHANCE = 0.35;
 const UNCONTESTED_DELAY_MS = 700;
-
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 
 export default function SkillsGameScreen({ vsAI, onGameOver, onResetGame, onFullRestart }) {
   const game = useSkillsCashGame();
@@ -34,6 +32,18 @@ export default function SkillsGameScreen({ vsAI, onGameOver, onResetGame, onFull
     concede,
     awardUncontested,
   } = game;
+
+  // Rankings power the AI's sense of player value — see src/hooks/aiBidder.js.
+  // Cached after the first fetch, so this resolves near-instantly on later games.
+  const [rankIndex, setRankIndex] = useState(null);
+  useEffect(() => {
+    if (!vsAI) return;
+    let cancelled = false;
+    loadRankings().then((index) => !cancelled && setRankIndex(index));
+    return () => {
+      cancelled = true;
+    };
+  }, [vsAI]);
 
   const range0 = bidRangeFor(0);
   const rawRange1 = bidRangeFor(1);
@@ -61,26 +71,27 @@ export default function SkillsGameScreen({ vsAI, onGameOver, onResetGame, onFull
     return () => clearTimeout(timer);
   }, [isUncontested, picksMade, awardUncontested]);
 
-  // AI auto-play: purely mechanical, random bid capped per turn, no
-  // player evaluation of any kind.
+  // AI auto-play: values the player up for bid off Sleeper rankings, weighs
+  // that against its remaining budget and roster slots (spend up on studs,
+  // save on scrubs), and only raises while the next legal bid is still
+  // within what it thinks the player is worth. See src/hooks/aiBidder.js.
   useEffect(() => {
     if (!vsAI || isGameOver || isUncontested || activeTurn !== AI_SIDE) return;
     const timer = setTimeout(() => {
       const range = bidRangeFor(AI_SIDE);
-      if (!range.canBid) {
-        concede(AI_SIDE);
-        return;
-      }
-      if (currentBidder === null || Math.random() >= AI_CONCEDE_CHANCE) {
-        const cap = Math.min(range.max, range.min + Math.max(1, Math.floor(budgets[AI_SIDE] * 0.3)));
-        placeBid(AI_SIDE, randInt(range.min, cap));
+      const remainingSlots = ROSTER_SLOTS.length - rosters[AI_SIDE].length;
+      const quality = qualityFor(rankIndex, currentPick.position, currentPick.name);
+      const valuation = aiValuation({ budget: budgets[AI_SIDE], remainingSlots, quality });
+      const decision = aiDecision({ range, currentBidder, valuation });
+      if (decision.action === "bid") {
+        placeBid(AI_SIDE, decision.amount);
       } else {
         concede(AI_SIDE);
       }
     }, AI_THINK_MS);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vsAI, isGameOver, isUncontested, activeTurn, currentBid, currentBidder, budgets[AI_SIDE]]);
+  }, [vsAI, isGameOver, isUncontested, activeTurn, currentBid, currentBidder, budgets[AI_SIDE], rankIndex]);
 
   useEffect(() => {
     if (isGameOver) onGameOver(rosters);
