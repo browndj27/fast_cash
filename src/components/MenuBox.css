@@ -14,6 +14,8 @@
   border: 3px solid #000;
   cursor: pointer;
   user-select: none;
+  position: relative;
+  z-index: 1;
   transition: background-color 0.12s, color 0.12s;
 }
 
@@ -30,4 +32,99 @@
 .menu-box.disabled:hover {
   background-color: #d10000;
   color: #fff;
+}
+
+/* Home-screen mode tiles — fixed equal size, icon + eyebrow + title */
+.menu-box--tile {
+  width: 230px;
+  height: 190px;
+  min-width: 230px;
+  min-height: 190px;
+  flex-direction: column;
+  gap: 8px;
+  font-size: initial;
+  font-weight: initial;
+  border-top: 7px solid #000;
+}
+
+.menu-box-icon {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  position: relative;
+}
+
+.menu-box-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.menu-box-eyebrow {
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  opacity: 0.55;
+}
+
+.menu-box-title {
+  font-size: 21px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+/* Fast Cash — urgent flicker, like a scoreboard clock running out */
+.menu-box--fastcash {
+  border-top-color: #ffc400;
+}
+
+.menu-box--fastcash .menu-box-icon {
+  animation: fastcash-flicker 1.6s ease-in-out infinite;
+}
+
+@keyframes fastcash-flicker {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 0 transparent); }
+  50% { opacity: 0.5; filter: drop-shadow(0 0 6px #ffc400); }
+}
+
+/* Skills Cash — precision reticle pulse */
+.menu-box--skills {
+  border-top-color: #2ec4ff;
+}
+
+.menu-box--skills .menu-box-icon::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border: 2px solid #2ec4ff;
+  border-radius: 50%;
+  opacity: 0;
+  animation: skills-ping 2.2s ease-out infinite;
+}
+
+@keyframes skills-ping {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  80% { transform: scale(1.35); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Spin the Wheel — ambient spin, speeds up on hover */
+.menu-box--wheel {
+  border-top-color: #c13bff;
+}
+
+.menu-box--wheel .menu-box-icon {
+  animation: wheel-spin 6s linear infinite;
+}
+
+.menu-box--wheel:hover .menu-box-icon {
+  animation-duration: 0.6s;
+}
+
+@keyframes wheel-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

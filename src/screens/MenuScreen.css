@@ -8,6 +8,19 @@
   gap: 40px;
   background-color: #000;
   flex-wrap: wrap;
+  overflow: hidden;
+}
+
+.menu-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(65vmin, 520px);
+  height: auto;
+  transform: translate(-50%, -50%);
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .back-button {
