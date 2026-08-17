@@ -76,6 +76,19 @@
   line-height: 1.2;
 }
 
+/* Plain color accents, no animation — used on the mode/position tiles */
+.menu-box--accent-gold {
+  border-top-color: #ffc400;
+}
+
+.menu-box--accent-cyan {
+  border-top-color: #2ec4ff;
+}
+
+.menu-box--accent-purple {
+  border-top-color: #c13bff;
+}
+
 /* Fast Cash — urgent flicker, like a scoreboard clock running out */
 .menu-box--fastcash {
   border-top-color: #ffc400;
