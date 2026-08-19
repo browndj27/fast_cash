@@ -145,3 +145,17 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+/* Solo Season — championship glow */
+.menu-box--solo {
+  border-top-color: #4caf50;
+}
+
+.menu-box--solo .menu-box-icon {
+  animation: solo-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes solo-glow {
+  0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+  50% { filter: drop-shadow(0 0 6px #4caf50); }
+}

@@ -7,6 +7,8 @@ import ResultsScreen from "./screens/ResultsScreen";
 import SkillsGameScreen from "./screens/skills/SkillsGameScreen";
 import SkillsResultsScreen from "./screens/skills/SkillsResultsScreen";
 import WheelGameScreen from "./screens/wheel/WheelGameScreen";
+import SoloWheelGameScreen from "./screens/wheel/SoloWheelGameScreen";
+import SoloSeasonResultsScreen from "./screens/wheel/SoloSeasonResultsScreen";
 
 // Skills Cash and Spin the NFL Wheel both draft the same fixed QB/RB/WR/TE/
 // FLEX roster, so neither needs the single-position picker Fast Cash uses.
@@ -17,7 +19,7 @@ export default function App() {
   const [gameMode, setGameMode] = useState("fastcash");
   const [vsAI, setVsAI] = useState(false);
   const [position, setPosition] = useState(null);
-  const [finalRosters, setFinalRosters] = useState(null);
+  const [finalPayload, setFinalPayload] = useState(null);
   const [gameKey, setGameKey] = useState(0);
 
   function resetToHome() {
@@ -25,7 +27,7 @@ export default function App() {
     setGameMode("fastcash");
     setVsAI(false);
     setPosition(null);
-    setFinalRosters(null);
+    setFinalPayload(null);
   }
 
   function resetGame() {
@@ -34,7 +36,13 @@ export default function App() {
 
   function startMode(mode) {
     setGameMode(mode);
-    setScreen("mode");
+    if (mode === "solo") {
+      // Solo Season has no opponent to pick — go straight to the draft.
+      setGameKey((k) => k + 1);
+      setScreen("game");
+    } else {
+      setScreen("mode");
+    }
   }
 
   if (screen === "home") {
@@ -43,6 +51,7 @@ export default function App() {
         onStart={() => startMode("fastcash")}
         onStartSkills={() => startMode("skills")}
         onStartWheel={() => startMode("wheel")}
+        onStartSolo={() => startMode("solo")}
       />
     );
   }
@@ -78,10 +87,21 @@ export default function App() {
   }
 
   if (screen === "game") {
-    const onGameOver = (rosters) => {
-      setFinalRosters(rosters);
+    const onGameOver = (payload) => {
+      setFinalPayload(payload);
       setScreen("results");
     };
+
+    if (gameMode === "solo") {
+      return (
+        <SoloWheelGameScreen
+          key={gameKey}
+          onGameOver={onGameOver}
+          onResetGame={resetGame}
+          onFullRestart={resetToHome}
+        />
+      );
+    }
 
     if (gameMode === "skills") {
       return (
@@ -120,13 +140,17 @@ export default function App() {
   }
 
   if (screen === "results") {
+    if (gameMode === "solo") {
+      return <SoloSeasonResultsScreen roster={finalPayload} onBackToHome={resetToHome} />;
+    }
+
     if (gameMode === "skills" || gameMode === "wheel") {
-      return <SkillsResultsScreen rosters={finalRosters} vsAI={vsAI} onBackToHome={resetToHome} />;
+      return <SkillsResultsScreen rosters={finalPayload} vsAI={vsAI} onBackToHome={resetToHome} />;
     }
 
     return (
       <ResultsScreen
-        rosters={finalRosters}
+        rosters={finalPayload}
         position={position}
         vsAI={vsAI}
         onBackToHome={resetToHome}
