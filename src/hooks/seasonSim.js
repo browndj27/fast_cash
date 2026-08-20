@@ -1,4 +1,4 @@
-import { pointsFor } from "../data/rankings";
+import { pointsFor, topByRank } from "../data/rankings";
 import { PLAYER_POOLS } from "../data/playerPools";
 
 const REGULAR_SEASON_WEEKS = 14;
@@ -6,8 +6,17 @@ const REGULAR_SEASON_WEEKS = 14;
 // the season ends at the regular-season record.
 const PLAYOFF_WIN_THRESHOLD = 9;
 export const PLAYOFF_ROUNDS = ["Wild Card", "Semifinal", "Championship"];
-// Playoff opponents get progressively tougher relative to league average.
-const PLAYOFF_TOUGHNESS = [1.05, 1.15, 1.25];
+
+// How deep into each position's ranked pool a weekly opponent's roster is
+// drawn from. Regular-season opponents are drawn from essentially the
+// whole pool (100 exceeds every position's ~64-player pool, so this is
+// unrestricted) — a real league has plenty of mediocre-to-bad rosters in
+// it, not just good ones. Playoff opponents are drawn from a
+// progressively smaller, stronger slice, since only the league's better
+// teams get that far — no fixed toughness multiplier, the pool itself
+// gets tougher.
+const REGULAR_SEASON_POOL_DEPTH = 100;
+const PLAYOFF_POOL_DEPTH = [40, 25, 15];
 
 // A roster's average weekly scoring power, from the same Sleeper-rank
 // points already used for results scoring elsewhere in the app.
@@ -16,27 +25,40 @@ function teamPower(roster, rankIndex) {
   return total / roster.length;
 }
 
-// A "replacement level" opponent's power — the average points a typical
-// QB/RB/RB/WR/WR/TE/FLEX lineup would score, drawn from the full player
-// pool rather than any specific roster.
-function leagueAveragePower(rankIndex) {
-  const avgByPosition = {};
-  for (const position of ["QB", "RB", "WR", "TE"]) {
-    const names = PLAYER_POOLS[position];
-    const total = names.reduce((sum, name) => sum + pointsFor(rankIndex, position, name), 0);
-    avgByPosition[position] = total / names.length;
-  }
-  const flexAvg = (avgByPosition.RB + avgByPosition.WR + avgByPosition.TE) / 3;
-  const slots = [
-    avgByPosition.QB,
-    avgByPosition.RB,
-    avgByPosition.RB,
-    avgByPosition.WR,
-    avgByPosition.WR,
-    avgByPosition.TE,
-    flexAvg,
+function randomFrom(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+// A plausible opponent roster's average power, drawn fresh for this one
+// matchup from the top `depth` players at each position — not literally
+// the best available (that's what your own drafted roster competed for),
+// but a believable "someone else in the league also drafted well" squad.
+// Redrawing it per matchup, rather than reusing one static average, is
+// what gives the season real week-to-week variance in who you're facing.
+function opponentPower(rankIndex, depth) {
+  const starters = [
+    ["QB", 1],
+    ["RB", 2],
+    ["WR", 2],
+    ["TE", 1],
   ];
-  return slots.reduce((a, b) => a + b, 0) / slots.length;
+
+  let total = 0;
+  let count = 0;
+  for (const [position, slots] of starters) {
+    const pool = topByRank(PLAYER_POOLS[position], position, rankIndex, depth);
+    for (let i = 0; i < slots; i++) {
+      total += pointsFor(rankIndex, position, randomFrom(pool));
+      count++;
+    }
+  }
+
+  const flexPosition = randomFrom(["RB", "WR", "TE"]);
+  const flexPool = topByRank(PLAYER_POOLS[flexPosition], flexPosition, rankIndex, depth);
+  total += pointsFor(rankIndex, flexPosition, randomFrom(flexPool));
+  count++;
+
+  return total / count;
 }
 
 // A single week's score for a team of the given average power — real
@@ -47,19 +69,18 @@ function weeklyScore(power) {
 }
 
 // Simulates a full mock season for a completed roster: a 14-week regular
-// season against replacement-level opponents, then — if the record clears
-// the playoff bar — a three-round playoff bracket (Wild Card, Semifinal,
-// Championship) against progressively tougher opponents.
+// season against a fresh plausible opponent each week, then — if the
+// record clears the playoff bar — a three-round playoff bracket (Wild
+// Card, Semifinal, Championship) against progressively stronger opponents.
 export function simulateSeason(roster, rankIndex) {
   const power = teamPower(roster, rankIndex);
-  const avgPower = leagueAveragePower(rankIndex);
 
   let wins = 0;
   let losses = 0;
   let pointsForTotal = 0;
   for (let week = 0; week < REGULAR_SEASON_WEEKS; week++) {
     const myScore = weeklyScore(power);
-    const oppScore = weeklyScore(avgPower);
+    const oppScore = weeklyScore(opponentPower(rankIndex, REGULAR_SEASON_POOL_DEPTH));
     pointsForTotal += myScore;
     if (myScore > oppScore) wins++;
     else losses++;
@@ -75,7 +96,7 @@ export function simulateSeason(roster, rankIndex) {
       const roundName = PLAYOFF_ROUNDS[i];
       reachedRound = roundName;
       const myScore = weeklyScore(power);
-      const oppScore = weeklyScore(avgPower * PLAYOFF_TOUGHNESS[i]);
+      const oppScore = weeklyScore(opponentPower(rankIndex, PLAYOFF_POOL_DEPTH[i]));
       if (myScore > oppScore) {
         if (i === PLAYOFF_ROUNDS.length - 1) {
           champion = true;
